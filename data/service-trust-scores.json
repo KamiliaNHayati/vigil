@@ -1,0 +1,49 @@
+{
+  "x402.dev.gokite.ai": {
+    "score": 95,
+    "verified": true,
+    "lastAudited": "2026-04-15",
+    "description": "Official Kite x402 payment protocol — Weather API, Yield API",
+    "payTo": "0x4A50DCA63d541372ad36E5A36F1D542d51164F19"
+  },
+  "tesseract.finance": {
+    "score": 88,
+    "verified": true,
+    "lastAudited": "2026-03-20",
+    "description": "Algebra DEX concentrated liquidity swap router on Kite",
+    "payTo": "0x03f8B4b140249Dc7B2503C928E7258CCe1d91F1A"
+  },
+  "www.tesseract.finance": {
+    "score": 88,
+    "verified": true,
+    "lastAudited": "2026-03-20",
+    "description": "Algebra DEX concentrated liquidity swap router on Kite",
+    "payTo": "0x03f8B4b140249Dc7B2503C928E7258CCe1d91F1A"
+  },
+  "bridge.prod.gokite.ai": {
+    "score": 85,
+    "verified": true,
+    "lastAudited": "2026-04-01",
+    "description": "Kite Bridge — LayerZero cross-chain asset transfers",
+    "payTo": "0x6F475642a6e85809B1c36Fa62763669b1b48DD5B"
+  },
+  "testnet.gokite.ai": {
+    "score": 90,
+    "verified": true,
+    "lastAudited": "2026-04-10",
+    "description": "Kite testnet portal — ecosystem hub",
+    "payTo": null
+  },
+  "malicious.io": {
+    "score": 5,
+    "verified": false,
+    "lastAudited": null,
+    "description": "Known malicious domain — blocklist"
+  },
+  "lz-arb.io": {
+    "score": 15,
+    "verified": false,
+    "lastAudited": null,
+    "description": "Unverified cross-chain relay"
+  }
+}

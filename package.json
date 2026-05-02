@@ -1,0 +1,39 @@
+{
+  "name": "vigil",
+  "version": "1.0.0",
+  "description": "AI Agent Security Harness for Kite Agent Passport",
+  "main": "backend/index.js",
+  "bin": {
+    "vigil": "./bin/vigil.js"
+  },
+  "scripts": {
+    "start:mcp": "set MCP_TRANSPORT=stdio && node backend/src/mcp-server.js",
+    "start:rest": "set MCP_TRANSPORT=rest && node backend/src/mcp-server.js",
+    "demo:safe": "node demo-agent/index.js",
+    "demo:attack": "node demo-agent/index.js --attack",
+    "seed": "node scripts/seed-demo-data.js",
+    "test:sensor": "node scripts/test-sensor-full.js",
+    "test:pipeline": "node scripts/test-pipeline.js",
+    "test:ksearch": "node scripts/ksearch-smoke-test.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "kite",
+    "ai-agent",
+    "security",
+    "mcp",
+    "x402"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "better-sqlite3": "^12.9.0",
+    "chalk": "^4.1.2",
+    "commander": "^14.0.3",
+    "dotenv": "^17.4.2",
+    "ethers": "^6.16.0",
+    "express": "^5.2.1"
+  }
+}

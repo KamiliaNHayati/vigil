@@ -1,0 +1,57 @@
+[
+  {
+    "name": "Kite Weather API",
+    "payTo": "0x4A50DCA63d541372ad36E5A36F1D542d51164F19",
+    "resource": "https://x402.dev.gokite.ai/api/weather",
+    "internalResource": "https://localhost:8099/api/weather",
+    "maxAmountRequired": "1000000000000000000",
+    "asset": "0x0fF5393387ad2f9f691FD6Fd28e07E3969e27e63",
+    "scheme": "gokite-aa",
+    "network": "kite-testnet",
+    "category": "weather",
+    "trustScore": 95,
+    "outputSchema": {
+      "properties": {
+        "temperature": { "type": "number" },
+        "conditions": { "type": "string" },
+        "humidity": { "type": "number" }
+      },
+      "required": ["temperature", "conditions"]
+    }
+  },
+  {
+    "name": "Kite DeFi Yield API",
+    "payTo": "0x8d9FaD78d5Ce247aA01C140798B9558fd64a63E3",
+    "resource": "https://x402.dev.gokite.ai/api/yield",
+    "maxAmountRequired": "1000000000000000000",
+    "asset": "0x0fF5393387ad2f9f691FD6Fd28e07E3969e27e63",
+    "scheme": "gokite-aa",
+    "network": "kite-testnet",
+    "category": "defi",
+    "trustScore": 92
+  },
+  {
+    "name": "Tesseract DEX Swap",
+    "payTo": "0x03f8B4b140249Dc7B2503C928E7258CCe1d91F1A",
+    "resource": "https://www.tesseract.finance/swap",
+    "maxAmountRequired": "50000000000000000000",
+    "asset": "0x0fF5393387ad2f9f691FD6Fd28e07E3969e27e63",
+    "scheme": "gokite-aa",
+    "network": "kite-testnet",
+    "category": "dex",
+    "trustScore": 88,
+    "description": "Algebra DEX concentrated liquidity swap router"
+  },
+  {
+    "name": "Kite Bridge",
+    "payTo": "0x6F475642a6e85809B1c36Fa62763669b1b48DD5B",
+    "resource": "https://bridge.prod.gokite.ai",
+    "maxAmountRequired": "100000000000000000000",
+    "asset": "0x0fF5393387ad2f9f691FD6Fd28e07E3969e27e63",
+    "scheme": "gokite-aa",
+    "network": "kite-testnet",
+    "category": "bridge",
+    "trustScore": 85,
+    "description": "LayerZero cross-chain bridge"
+  }
+]
