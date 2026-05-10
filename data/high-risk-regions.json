@@ -1,0 +1,5 @@
+{
+  "regions": ["KP", "IR", "CU", "SY", "RU"],
+  "asns": [44444, 12345],
+  "reason": "Jurisdiction or ASN known for hosting malicious infrastructure"
+}
