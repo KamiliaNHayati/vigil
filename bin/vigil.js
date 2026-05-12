@@ -2,7 +2,7 @@
 // bin/vigil.js — CLI Tool for Vigil AI Agent Security Harness
 //
 // Commands:
-//   vigil evaluate  — Evaluate a payment intent against all 14 sensor rules
+//   vigil evaluate  — Evaluate a payment intent against all 16 sensor rules
 //   vigil reputation — Show trust tier and reputation for an agent
 //
 // Color coding:
@@ -31,6 +31,7 @@ program
   .option('--session <id>', 'Active kpass session ID')
   .option('--vault <address>', 'Agent vault address for budget check')
   .option('--json', 'Output raw JSON instead of formatted display')
+  .option('--verbose', 'Show full sensorBreakdown with module statuses')
   .option('--no-confirm', 'Skip interactive WARN confirmation (auto-decline)')
   .action(async (opts) => {
     const { ethers } = require('ethers');
@@ -102,6 +103,18 @@ program
 
     const elapsed = Date.now() - startTime;
 
+    // Build dynamic sensorBreakdown
+    const breakdownMap = {};
+    for (const mr of (sensorResult.moduleResults || [])) {
+      if (!breakdownMap[mr.category]) breakdownMap[mr.category] = [];
+      breakdownMap[mr.category].push({ name: mr.module, status: mr.status, level: mr.level });
+    }
+    const sensorBreakdown = {
+      checks: Object.entries(breakdownMap).map(([category, modules]) => ({ category, modules })),
+      totalChecks: (sensorResult.moduleResults || []).length,
+      flaggedChecks: (sensorResult.moduleResults || []).filter(m => m.status === 'flagged').length
+    };
+
     const result = {
       action: decision.action,
       code: decision.code,
@@ -113,7 +126,10 @@ program
       primaryConcern: finalGuide.primaryConcern ?? sensorResult.flags[0]?.reason ?? null,
       flags: sensorResult.flags,
       trustTier: sensorResult.trustTier,
-      oracleWarning: null
+      threatIntel: sensorResult.threatIntel ?? null,
+      oracleWarning: null,
+      pipelineElapsedMs: elapsed,
+      sensorBreakdown
     };
 
     // ── JSON output mode ───────────────────────────────────────────────
@@ -183,8 +199,28 @@ program
     console.log(`  ${chalk.dim('Verifier:')}  ${result.verifierAligned ? chalk.green('Aligned') : chalk.red('Misaligned')} (${result.verifierAttempts} attempt${result.verifierAttempts !== 1 ? 's' : ''})`);
     console.log(`  ${chalk.dim('Degraded:')}  ${result.degraded ? chalk.yellow('Yes — LLM unavailable') : chalk.green('No')}`);
     console.log(`  ${chalk.dim('Trust Tier:')} ${result.trustTier}`);
-    console.log(`  ${chalk.dim('Elapsed:')}   ${elapsed}ms`);
+    console.log(`  ${chalk.dim('Elapsed:')}   ${result.pipelineElapsedMs}ms`);
+    if (result.threatIntel?.threatsFound) {
+      console.log(`  ${chalk.dim('Threat Intel:')} ${chalk.red(result.threatIntel.summary)}`);
+    }
     console.log('');
+
+    // ── Verbose: sensorBreakdown ──────────────────────────────────────────
+    if (opts.verbose && result.sensorBreakdown) {
+      console.log(chalk.dim(`  ── Sensor Breakdown (${result.sensorBreakdown.totalChecks} checks, ${result.sensorBreakdown.flaggedChecks} flagged) ──`));
+      for (const cat of result.sensorBreakdown.checks) {
+        console.log(`  ${chalk.bold(cat.category)}`);
+        for (const mod of cat.modules) {
+          const statusIcon = mod.status === 'flagged' ? chalk.red('✗') :
+                             mod.status === 'clean' ? chalk.green('✓') :
+                             mod.status === 'skipped' ? chalk.gray('─') :
+                             chalk.yellow('!');
+          const levelStr = mod.level ? chalk.dim(` [${mod.level}]`) : '';
+          console.log(`    ${statusIcon} ${mod.name}${levelStr}`);
+        }
+      }
+      console.log('');
+    }
 
     // ── Interactive WARN flow ──────────────────────────────────────────
     if (result.action === 'WARN') {

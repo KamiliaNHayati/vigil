@@ -68,7 +68,7 @@ Does this match the authorized task? Reply with JSON only:
 or {"match": false, "reason": "one sentence"}`;
 
   try {
-    const result = await rawCall(prompt, 80);
+    const result = await rawCall(prompt, 500);
     if (!result.match) {
       // Extract a clean description for the flag
       let hostname;

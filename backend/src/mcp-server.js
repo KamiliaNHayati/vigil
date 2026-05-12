@@ -7,19 +7,31 @@
 
 require('dotenv').config();
 const { z } = require('zod');
+const { execSync } = require('child_process');
 
 const express = require('express');
+const { ethers } = require('ethers');
 const { storeEvaluation, getRecentEvaluations, storeAction, db } = require('./store');
 const { getServiceTrustScore, getBatchTrustScores } = require('./service-trust');
 const sensor   = require('./sensor');
 const guide    = require('./guide');
 const verifier = require('./verifier');
 const policy   = require('./policy');
+const { deployCapsule } = require('./capsule');
 
 // ── Handler Functions ────────────────────────────────────────────────────────
 // Full pipeline: Sensor → Guide → Verifier → Policy (Day 4)
 
+function enforceHTTPS(resource) {
+  const url = new URL(resource);
+  if (url.protocol !== 'https:' && url.hostname !== 'localhost') {
+    throw new Error('Only HTTPS URLs allowed');
+  }
+}
+
 async function handleEvaluatePayment(intent) {
+  const startTime = Date.now();
+
   // ── Step 1: Sensor (deterministic risk checks) ─────────────────────────────
   const sensorResult = await sensor.check(intent);
 
@@ -52,6 +64,18 @@ async function handleEvaluatePayment(intent) {
     vaultAddress: intent.vaultAddress
   });
 
+  // ── Build dynamic sensorBreakdown from moduleResults ───────────────────────
+  const breakdownMap = {};
+  for (const mr of (sensorResult.moduleResults || [])) {
+    if (!breakdownMap[mr.category]) breakdownMap[mr.category] = [];
+    breakdownMap[mr.category].push({ name: mr.module, status: mr.status, level: mr.level });
+  }
+  const sensorBreakdown = {
+    checks: Object.entries(breakdownMap).map(([category, modules]) => ({ category, modules })),
+    totalChecks: (sensorResult.moduleResults || []).length,
+    flaggedChecks: (sensorResult.moduleResults || []).filter(m => m.status === 'flagged').length
+  };
+
   const result = {
     action: decision.action,
     code: decision.code,
@@ -63,10 +87,33 @@ async function handleEvaluatePayment(intent) {
     primaryConcern: finalGuide.primaryConcern ?? sensorResult.flags[0]?.reason ?? null,
     flags: sensorResult.flags,
     trustTier: sensorResult.trustTier,
-    oracleWarning: null
+    threatIntel: sensorResult.threatIntel ?? null,
+    oracleWarning: null,
+    pipelineElapsedMs: Date.now() - startTime,
+    sensorBreakdown
   };
 
-  // Store for dashboard
+  // After policy approves, deploy capsule
+  if (result.action === 'APPROVE') {
+    if (process.env.VAULT_OWNER_PRIVATE_KEY && intent.vaultAddress) {
+      const provider = new ethers.JsonRpcProvider(process.env.KITE_RPC_URL);
+      const signer = new ethers.Wallet(process.env.VAULT_OWNER_PRIVATE_KEY, provider);
+      const capsule = await deployCapsule({
+        signer,
+        vaultAddress: intent.vaultAddress,
+        agentId: intent.agentAddress,
+        payTo: intent.payTo,
+        amountWei: intent.amountWei
+      });
+      result.capsule = {
+        privateKey: capsule.capsulePrivateKey,
+        address: capsule.capsuleAddress,
+        expiresAt: capsule.expiresAt
+      };
+    }
+  }
+
+  // Store for dashboard (SQLite)
   storeEvaluation({
     agentAddress: intent.agentAddress,
     payTo: intent.payTo,
@@ -82,6 +129,39 @@ async function handleEvaluatePayment(intent) {
     degraded: result.degraded,
     oracleWarning: result.oracleWarning
   });
+
+  // Dual-write to Supabase (fire-and-forget, only if configured)
+  if (process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    try {
+      const { storeEvaluationToSupabase } = require('./store-supabase');
+      // Compute traceHash for on-chain link (same hash that gets written to AgentRegistry)
+      const traceHash = ethers.keccak256(ethers.toUtf8Bytes(JSON.stringify({
+        action: result.action, sensorLevel: result.sensorLevel, flags: result.flags
+      })));
+      storeEvaluationToSupabase({
+        agentAddress: intent.agentAddress,
+        payTo: intent.payTo,
+        amountWei: intent.amountWei,
+        resource: intent.resource,
+        sensorLevel: result.sensorLevel,
+        action: result.action,
+        code: result.code,
+        flags: result.flags,
+        explanation: result.explanation,
+        verifierAligned: result.verifierAligned,
+        verifierAttempts: result.verifierAttempts,
+        degraded: result.degraded,
+        oracleWarning: result.oracleWarning,
+        // Hybrid fields
+        traceHash,
+        pipelineElapsedMs: result.pipelineElapsedMs,
+        sensorBreakdown: result.sensorBreakdown,
+        threatIntel: result.threatIntel,
+        trustTier: result.trustTier,
+        capsuleAddress: result.capsule?.address ?? null
+      }).catch(err => console.warn('[Supabase] Write failed:', err.message));
+    } catch { /* supabase module not available */ }
+  }
 
   return result;
 }
@@ -107,15 +187,85 @@ async function handleRecordOutcome({ agentAddress, success, riskLevel, traceData
   // Oracle sanity check — post-execution data quality validation
   const oracleWarning = checkOracleSanity(traceData);
 
+  // ── On-chain write to AgentRegistry ───────────────────────────────────────
+  // Fire-and-forget: don't block the response on tx confirmation.
+  // If REPORTER_PRIVATE_KEY is missing or RPC fails, log and continue.
+  let txHash = null;
+  const registryAddr = process.env.AGENT_REGISTRY_ADDRESS;
+  const reporterKey  = process.env.REPORTER_PRIVATE_KEY;
+  const rpcUrl       = process.env.KITE_RPC_URL;
+
+  if (registryAddr && reporterKey && reporterKey.trim().length > 10 && rpcUrl) {
+    const RISK_MAP = { LOW: 0, MEDIUM: 1, HIGH: 2, CRITICAL: 3 };
+    const riskUint8 = RISK_MAP[riskLevel] ?? 0;
+
+    try {
+      const provider = new ethers.JsonRpcProvider(rpcUrl);
+      const wallet   = new ethers.Wallet(reporterKey.trim(), provider);
+      const ABI = ['function recordAction(address agent, bool success, bytes32 traceHash, uint8 riskLevel) external'];
+      const registry = new ethers.Contract(registryAddr, ABI, wallet);
+
+      // Fire tx, log confirmation in background (don't await in hot path)
+      registry.recordAction(agentAddress, success, traceHash, riskUint8)
+        .then(tx => {
+          txHash = tx.hash;
+          console.log(`[Registry] recordAction tx sent: ${tx.hash}`);
+          return tx.wait();
+        })
+        .then(receipt => {
+          console.log(`[Registry] recordAction confirmed: block ${receipt.blockNumber}`);
+        })
+        .catch(err => {
+          console.warn('[Registry] recordAction tx failed:', err.message);
+        });
+    } catch (err) {
+      console.warn('[Registry] On-chain write setup failed:', err.message);
+    }
+  }
+
   return {
     recorded: true,
     traceHash,
+    txHash,
     oracleWarning
   };
 }
 
 async function handleGetReputation({ agentAddress }) {
-  // Read from SQLite actions table (on-chain AgentRegistry wired on Day 7)
+  const { ethers } = require('ethers');
+  const registryAddr = process.env.AGENT_REGISTRY_ADDRESS;
+  const rpcUrl       = process.env.KITE_RPC_URL;
+
+  // ── Try on-chain AgentRegistry first ──────────────────────────────────────
+  if (registryAddr && rpcUrl) {
+    try {
+      const provider = new ethers.JsonRpcProvider(rpcUrl);
+      const ABI = [
+        'function getTrustTier(address) view returns (uint8)',
+        'function getProfile(address) view returns (uint256 score, uint256 total, uint256 successful, uint256 failed)'
+      ];
+      const registry = new ethers.Contract(registryAddr, ABI, provider);
+
+      const [trustTier, profile] = await Promise.all([
+        registry.getTrustTier(agentAddress),
+        registry.getProfile(agentAddress)
+      ]);
+
+      return {
+        agentAddress,
+        trustTier: Number(trustTier),
+        reputationScore: Number(profile.score),
+        totalActions: Number(profile.total),
+        successfulActions: Number(profile.successful),
+        failedActions: Number(profile.failed),
+        source: 'on-chain'
+      };
+    } catch (err) {
+      console.warn('[Reputation] On-chain read failed, falling back to SQLite:', err.message);
+    }
+  }
+
+  // ── Fallback: SQLite ──────────────────────────────────────────────────────
   const stats = db.prepare(`
     SELECT 
       COUNT(*) as total,
@@ -129,7 +279,7 @@ async function handleGetReputation({ agentAddress }) {
   const failed = stats?.failed ?? 0;
 
   // Compute trust tier from local data (mirrors AgentRegistry logic)
-  // Tier 0: <5 actions, Tier 1: 5+ actions, Tier 2: 5+ & >80% success, Tier 3: 20+ & >90% success
+  // Tier 0: <5 actions, Tier 1: 5+ actions, Tier 2: >6000 score, Tier 3: >9000 score
   let trustTier = 0;
   const successRate = total > 0 ? successful / total : 0;
   if (total >= 20 && successRate > 0.9) trustTier = 3;
@@ -176,20 +326,14 @@ function checkOracleSanity(traceDataStr) {
 // ── Input Validation ─────────────────────────────────────────────────────────
 
 function validateInput({ payTo, amountWei, resource, agentAddress }) {
+  enforceHTTPS(resource);
+
   const { ethers } = require('ethers');
-  if (!ethers.isAddress(payTo)) throw new Error('Invalid payTo address');
+  // Use getAddress() — normalizes EIP-55 checksum, accepts all-lower or all-upper hex addresses
+  try { ethers.getAddress(payTo); } catch { throw new Error('Invalid payTo address'); }
   if (!/^\d+$/.test(amountWei)) throw new Error('Invalid amountWei format');
   if (BigInt(amountWei) === 0n) throw new Error('Zero-value payment');
-  try {
-    const url = new URL(resource);
-    if (url.protocol !== 'https:' && url.hostname !== 'localhost') {
-      throw new Error('Resource must be HTTPS (localhost exempted for development)');
-    }
-  } catch (e) {
-    if (e.message.includes('Resource must be')) throw e;
-    throw new Error(`Invalid resource URL: ${resource}`);
-  }
-  if (!ethers.isAddress(agentAddress)) throw new Error('Invalid agentAddress');
+  try { ethers.getAddress(agentAddress); } catch { throw new Error('Invalid agentAddress'); }
 }
 
 // ── Transport Router ─────────────────────────────────────────────────────────
@@ -198,7 +342,17 @@ const transport = process.env.MCP_TRANSPORT ?? 'stdio';
 
 if (transport === 'rest') {
   const app = express();
-  app.use(express.json());
+  const cors = require('cors');
+  app.use(cors());
+  app.use(express.json({ limit: '10kb' }));
+
+  const rateLimit = require('express-rate-limit');
+  const apiLimiter = rateLimit({
+    windowMs: 60 * 1000,
+    max: 30,
+    message: { error: 'Too many requests, slow down' }
+  });
+  app.use('/api/', apiLimiter);
 
   // CORS for dashboard
   app.use((req, res, next) => {
@@ -240,12 +394,75 @@ if (transport === 'rest') {
     }
   });
 
-  // Dashboard feed
+  // Dashboard feed (fallback for when no wallet connected, maybe limit fields or just keep as is)
   app.get('/api/evaluations', (req, res) => {
     try {
       const limit = parseInt(req.query.limit) || 50;
       const evaluations = getRecentEvaluations(limit);
       res.json({ evaluations });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // ── Wallet Auth Nonce Flow ───────────────────────────────────────────
+  app.get('/api/auth/nonce/:address', async (req, res) => {
+    try {
+      const { createNonce } = require('./store-supabase');
+      const agentAddress = req.params.address;
+      const nonce = await createNonce(agentAddress);
+      res.json({ nonce, expiresAt: Date.now() + 5 * 60 * 1000 });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.get('/api/evaluations/:agentAddress', async (req, res) => {
+    const agentAddress = req.params.agentAddress;
+    const sig = req.headers['x-wallet-signature'];
+    const nonce = req.headers['x-wallet-nonce'];
+
+    if (!sig || !nonce) {
+      return res.status(401).json({ error: 'Missing signature or nonce' });
+    }
+
+    try {
+      const { verifyAndConsumeNonce, getClient } = require('./store-supabase');
+      // Verify nonce
+      const validNonce = await verifyAndConsumeNonce(nonce, agentAddress);
+      if (!validNonce) {
+        return res.status(401).json({ error: 'Invalid or expired nonce' });
+      }
+
+      // Verify signature
+      const message = `Vigil authentication for agent ${agentAddress}. Nonce: ${nonce}`;
+      let signerAddr;
+      try {
+        signerAddr = ethers.verifyMessage(message, sig);
+      } catch {
+        return res.status(401).json({ error: 'Invalid signature format' });
+      }
+
+      if (signerAddr.toLowerCase() !== agentAddress.toLowerCase()) {
+        return res.status(401).json({ error: 'Address mismatch' });
+      }
+
+      // Fetch evaluations from Supabase using service_role
+      const client = getClient();
+      if (!client) {
+        return res.status(500).json({ error: 'Supabase client not configured on server' });
+      }
+      
+      const { data: evals, error } = await client
+        .from('evaluations')
+        .select('*')
+        .eq('agent_address', agentAddress)
+        .order('timestamp', { ascending: false })
+        .limit(100);
+
+      if (error) return res.status(500).json({ error: error.message });
+
+      res.json({ evaluations: evals });
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
@@ -275,16 +492,64 @@ if (transport === 'rest') {
     });
   });
 
+  // Rule Composer — manual trigger
+  app.post('/api/compose-rule', async (req, res) => {
+    try {
+      const proposal = await composeRule();
+      res.json(proposal);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+  app.get('/api/rules/proposed', async (req, res) => {
+    try {
+      const { createClient } = require('@supabase/supabase-js');
+      if (!process.env.SUPABASE_URL) return res.json({ rules: [] });
+      const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+      const { data, error } = await supabase.from('proposed_rules').select('*').order('proposed_at', { ascending: false }).limit(20);
+      if (error) {
+        if (error.code === '42P01' || error.code === '42501') return res.json({ rules: [] }); // table not found or perm denied
+        throw error;
+      }
+      res.json({ rules: data || [] });
+    } catch (err) {
+      res.json({ rules: [] }); // Graceful degradation for UI
+    }
+  });
+
+
   const PORT = process.env.PORT ?? 3003;
   app.listen(PORT, () => {
     console.log(`[Vigil] REST server listening on http://localhost:${PORT}`);
     console.log(`[Vigil] Endpoints:`);
-    console.log(`  POST /api/evaluate     — Evaluate payment intent`);
-    console.log(`  POST /api/record       — Record payment outcome`);
-    console.log(`  GET  /api/reputation/:addr — Agent reputation`);
-    console.log(`  GET  /api/evaluations  — Dashboard feed`);
-    console.log(`  GET  /api/health       — Health check`);
+    console.log(`  POST /api/evaluate           — Evaluate payment intent`);
+    console.log(`  POST /api/record             — Record payment outcome`);
+    console.log(`  GET  /api/reputation/:addr   — Agent reputation`);
+    console.log(`  GET  /api/evaluations        — Dashboard feed (public)`);
+    console.log(`  GET  /api/evaluations/:addr  — Agent feed (wallet auth)`);
+    console.log(`  GET  /api/auth/nonce/:addr   — Get wallet auth nonce`);
+    console.log(`  POST /api/compose-rule       — Trigger Rule Composer`);
+    console.log(`  GET  /api/rules/proposed     — List shadow rules`);
+    console.log(`  GET  /api/health             — Health check`);
   });
+
+  // ── Rule Composer Cron (runs every 30 minutes) ──────────────────────────
+  const { composeRule } = require('./llm-client');
+  const COMPOSER_INTERVAL = 24 * 60 * 60 * 1000; // 24 hours
+
+  const runComposer = () => {
+    console.log('[RuleComposer] Running composition cycle...');
+    composeRule()
+      .then(proposal => {
+        if (proposal?.proposed) console.log('[RuleComposer] New rule proposed:', proposal.ruleName);
+        else console.log('[RuleComposer] No new rule needed');
+      })
+      .catch(err => console.warn('[RuleComposer] Cycle failed:', err.message));
+  };
+
+  // Run once on startup, then every 30 minutes
+  setTimeout(runComposer, 10_000); // Wait 10s for everything to init
+  setInterval(runComposer, COMPOSER_INTERVAL);
 
 } else if (transport === 'stdio') {
   // MCP stdio transport — for Claude Code, Cursor, terminal, CI scripts
@@ -391,7 +656,25 @@ if (transport === 'rest') {
   process.exit(1);
 }
 
+// ── Load reporter signer ───────────────────────────────────────────
+function loadReporterSigner() {
+  const { ethers } = require('ethers');
+  try {
+    const pk = execSync('cast wallet private-key acc1', {
+      encoding: 'utf8',
+      timeout: 30000,
+      stdio: ['inherit', 'pipe', 'pipe']
+    }).trim();
+    const provider = new ethers.JsonRpcProvider(process.env.KITE_RPC_URL);
+    return new ethers.Wallet(pk, provider);
+  } catch (err) {
+    console.warn('[Registry] Keystore unlock failed, on-chain writes disabled');
+    return null;
+  }
+}
+
 module.exports = {
+  loadReporterSigner,
   handleEvaluatePayment,
   handleRecordOutcome,
   handleGetReputation,

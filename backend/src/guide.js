@@ -169,7 +169,7 @@ Rules:
   const content = await callOpenRouter({
     model: MODELS.ANALYSIS,
     messages: [{ role: 'user', content: prompt }],
-    maxTokens: 150,
+    maxTokens: 1000,
     responseFormat: { type: 'json_object' }
   });
 
