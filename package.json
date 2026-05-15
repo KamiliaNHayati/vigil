@@ -7,13 +7,17 @@
     "vigil": "./bin/vigil.js"
   },
   "scripts": {
-    "start:mcp": "set MCP_TRANSPORT=stdio && node backend/src/mcp-server.js",
-    "start:rest": "set MCP_TRANSPORT=rest && node backend/src/mcp-server.js",
+    "start:mcp": "cross-env MCP_TRANSPORT=stdio node backend/src/mcp-server.js",
+    "start:rest": "cross-env MCP_TRANSPORT=rest node backend/src/mcp-server.js",
     "demo:safe": "node demo-agent/index.js",
     "demo:attack": "node demo-agent/index.js --attack",
+    "demo:both": "node demo-agent/index.js --both",
+    "demo:reset": "node scripts/demo-reset.js",
     "seed": "node scripts/seed-demo-data.js",
     "test:sensor": "node scripts/test-sensor-full.js",
     "test:pipeline": "node scripts/test-pipeline.js",
+    "test:registry": "node scripts/test-registry.js",
+    "test:demo": "node scripts/test-demo-agent.js",
     "test:ksearch": "node scripts/ksearch-smoke-test.js"
   },
   "engines": {
@@ -29,11 +33,16 @@
   "license": "MIT",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
+    "@supabase/supabase-js": "^2.105.3",
     "better-sqlite3": "^12.9.0",
     "chalk": "^4.1.2",
     "commander": "^14.0.3",
     "dotenv": "^17.4.2",
     "ethers": "^6.16.0",
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.5.1"
+  },
+  "devDependencies": {
+    "cross-env": "^10.1.0"
   }
 }

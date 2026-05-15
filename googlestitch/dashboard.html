@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Vigil Dashboard</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&amp;family=Inter:wght@400;600&amp;family=JetBrains+Mono:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "outline-variant": "#414755",
+                    "surface-container-low": "#181c23",
+                    "on-background": "#e0e2ed",
+                    "on-tertiary": "#472a00",
+                    "on-secondary": "#003824",
+                    "on-error": "#690005",
+                    "on-secondary-fixed": "#002113",
+                    "on-surface-variant": "#c1c6d7",
+                    "on-error-container": "#ffdad6",
+                    "primary": "#adc6ff",
+                    "inverse-on-surface": "#2d3039",
+                    "primary-fixed-dim": "#adc6ff",
+                    "surface": "#10131b",
+                    "surface-tint": "#adc6ff",
+                    "on-tertiary-fixed-variant": "#653e00",
+                    "background": "#10131b",
+                    "tertiary-fixed-dim": "#ffb95f",
+                    "surface-bright": "#363942",
+                    "inverse-surface": "#e0e2ed",
+                    "surface-container-lowest": "#0b0e16",
+                    "tertiary-container": "#ca8100",
+                    "primary-fixed": "#d8e2ff",
+                    "on-primary-container": "#00285c",
+                    "secondary": "#4edea3",
+                    "tertiary-fixed": "#ffddb8",
+                    "primary-container": "#4b8eff",
+                    "surface-variant": "#31353d",
+                    "outline": "#8b90a0",
+                    "surface-container-high": "#272a32",
+                    "on-tertiary-fixed": "#2a1700",
+                    "surface-container-highest": "#31353d",
+                    "error": "#ffb4ab",
+                    "on-secondary-container": "#00311f",
+                    "error-container": "#93000a",
+                    "on-surface": "#e0e2ed",
+                    "on-primary-fixed-variant": "#004493",
+                    "on-secondary-fixed-variant": "#005236",
+                    "on-primary": "#002e69",
+                    "on-tertiary-container": "#3e2400",
+                    "on-primary-fixed": "#001a41",
+                    "secondary-container": "#00a572",
+                    "surface-dim": "#10131b",
+                    "inverse-primary": "#005bc1",
+                    "secondary-fixed-dim": "#4edea3",
+                    "tertiary": "#ffb95f",
+                    "secondary-fixed": "#6ffbbe",
+                    "surface-container": "#1c2028"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "sm": "0.5rem",
+                    "xs": "0.25rem",
+                    "xl": "2rem",
+                    "lg": "1.5rem",
+                    "md": "1rem",
+                    "gutter": "1rem",
+                    "base": "4px",
+                    "container-margin": "2rem"
+            },
+            "fontFamily": {
+                    "body-base": ["Inter"],
+                    "code-snippet": ["JetBrains Mono"],
+                    "display-lg": ["Hanken Grotesk"],
+                    "status-label": ["JetBrains Mono"],
+                    "headline-md": ["Hanken Grotesk"],
+                    "body-sm": ["Inter"]
+            },
+            "fontSize": {
+                    "body-base": ["16px", {"lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "400"}],
+                    "code-snippet": ["13px", {"lineHeight": "20px", "letterSpacing": "0em", "fontWeight": "400"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "status-label": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "letterSpacing": "0em", "fontWeight": "400"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        /* Custom scrollbar for log viewers */
+        .log-viewer::-webkit-scrollbar { width: 6px; height: 6px; }
+        .log-viewer::-webkit-scrollbar-track { background: transparent; }
+        .log-viewer::-webkit-scrollbar-thumb { background: #31353d; border-radius: 3px; }
+        .log-viewer:hover::-webkit-scrollbar-thumb { background: #414755; }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-base min-h-screen flex flex-col">
+<!-- TopAppBar -->
+<header class="bg-surface/80 dark:bg-surface/80 backdrop-blur-md docked full-width top-0 sticky z-50 border-b border-outline-variant flat no shadows flex justify-between items-center w-full px-gutter h-16 max-w-full mx-auto">
+<div class="flex items-center gap-xl">
+<div class="font-headline-md text-headline-md font-bold text-on-surface tracking-tight">Vigil</div>
+<nav class="hidden md:flex items-center gap-md font-body-sm text-body-sm">
+<!-- Dashboard is Active -->
+<a class="text-primary dark:text-primary font-bold border-b-2 border-primary pb-1 flex flex-col opacity-80 scale-95 transition-all" href="#">Dashboard</a>
+<!-- Documentation is Inactive -->
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/50 transition-colors duration-200 px-2 py-1 rounded" href="#">Documentation</a>
+</nav>
+</div>
+<div class="flex items-center gap-md">
+<!-- Trailing Action -->
+<button class="bg-primary text-on-primary font-body-sm text-body-sm font-semibold px-4 py-2 rounded-lg hover:bg-primary-container hover:text-on-primary-container transition-colors duration-200">
+                Connect Wallet
+            </button>
+<!-- Trailing Icons -->
+<button class="text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/50 p-2 rounded-full transition-colors duration-200">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">account_balance_wallet</span>
+</button>
+<button class="text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/50 p-2 rounded-full transition-colors duration-200">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">settings</span>
+</button>
+<!-- Profile Image Alt text exists in JSON, simulating a small avatar area if needed, but not strictly asked for beyond the wallet address mention -->
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow w-full max-w-7xl mx-auto px-gutter py-xl flex flex-col gap-xl">
+<!-- Page Header -->
+<div class="flex justify-between items-end border-b border-outline-variant pb-md">
+<div>
+<h1 class="font-headline-md text-headline-md text-on-surface">System Overview</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-sm">Real-time payment evaluation and security logs.</p>
+</div>
+<div class="font-code-snippet text-code-snippet text-on-surface-variant">
+                NODE: <span class="text-primary">VGL-US-E1</span>
+</div>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-lg">
+<!-- Security Loop Status (Sensor + Guide + Verifier) -->
+<div class="col-span-1 lg:col-span-4 bg-surface-container-low rounded-xl border border-outline-variant flex flex-col">
+<div class="p-md border-b border-outline-variant flex justify-between items-center">
+<h2 class="font-body-sm text-body-sm font-bold text-on-surface uppercase tracking-wider">Security Loop</h2>
+<span class="font-code-snippet text-code-snippet text-on-surface-variant">SYS-ID: 809A</span>
+</div>
+<div class="p-md flex flex-col gap-md flex-grow justify-center">
+<!-- Sensor -->
+<div class="flex items-center gap-md bg-surface border border-outline-variant rounded-lg p-sm">
+<div class="h-8 w-8 rounded-full bg-secondary-container/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">sensors</span>
+</div>
+<div class="flex-grow">
+<div class="font-body-sm text-body-sm text-on-surface">Data Sensor</div>
+<div class="font-status-label text-status-label text-secondary">ACTIVE: 12ms ping</div>
+</div>
+</div>
+<!-- Guide -->
+<div class="flex items-center gap-md bg-surface border border-outline-variant rounded-lg p-sm">
+<div class="h-8 w-8 rounded-full bg-secondary-container/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">route</span>
+</div>
+<div class="flex-grow">
+<div class="font-body-sm text-body-sm text-on-surface">Heuristic Guide</div>
+<div class="font-status-label text-status-label text-secondary">NOMINAL: Ruleset v4.2</div>
+</div>
+</div>
+<!-- Verifier -->
+<div class="flex items-center gap-md bg-surface border border-primary/30 rounded-lg p-sm relative overflow-hidden">
+<div class="absolute inset-0 bg-primary/5 pulse-bg"></div>
+<div class="h-8 w-8 rounded-full bg-primary-container/20 flex items-center justify-center z-10">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+</div>
+<div class="flex-grow z-10">
+<div class="font-body-sm text-body-sm text-on-surface">Consensus Verifier</div>
+<div class="font-status-label text-status-label text-primary">EVALUATING...</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Recent Payment Evaluations -->
+<div class="col-span-1 lg:col-span-8 bg-surface-container-low rounded-xl border border-outline-variant flex flex-col">
+<div class="p-md border-b border-outline-variant flex justify-between items-center">
+<h2 class="font-body-sm text-body-sm font-bold text-on-surface uppercase tracking-wider">Evaluation Stream</h2>
+<button class="font-code-snippet text-code-snippet text-on-surface-variant border border-outline-variant rounded px-2 py-1 hover:text-primary hover:border-primary transition-colors">
+                        EXPORT LOGS
+                    </button>
+</div>
+<div class="flex flex-col">
+<!-- Header Row -->
+<div class="grid grid-cols-12 gap-sm p-sm px-md border-b border-surface-variant font-status-label text-status-label text-on-surface-variant bg-surface">
+<div class="col-span-3">STATUS</div>
+<div class="col-span-5">SERVICE URL</div>
+<div class="col-span-4">AGENT ID / CONFIDENCE</div>
+</div>
+<!-- List Items -->
+<div class="flex flex-col divide-y divide-surface-variant">
+<!-- Item 1: Approve -->
+<div class="grid grid-cols-12 gap-sm p-sm px-md items-center hover:bg-surface-variant/30 transition-colors">
+<div class="col-span-3 flex items-center gap-xs">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1; font-size: 16px;">check_circle</span>
+<span class="font-status-label text-status-label px-2 py-1 rounded bg-secondary-container/20 text-secondary border border-secondary/20">APPROVE</span>
+</div>
+<div class="col-span-5 font-code-snippet text-code-snippet text-on-surface-variant truncate">
+                                api.neural-inference.com/v1/predict
+                            </div>
+<div class="col-span-4 flex justify-between items-center">
+<span class="font-code-snippet text-code-snippet text-on-surface">agt_9f82...3a1</span>
+<span class="font-code-snippet text-code-snippet text-secondary">99.8%</span>
+</div>
+</div>
+<!-- Item 2: Warn -->
+<div class="grid grid-cols-12 gap-sm p-sm px-md items-center hover:bg-surface-variant/30 transition-colors">
+<div class="col-span-3 flex items-center gap-xs">
+<span class="material-symbols-outlined text-tertiary" style="font-variation-settings: 'FILL' 1; font-size: 16px;">warning</span>
+<span class="font-status-label text-status-label px-2 py-1 rounded bg-tertiary-container/20 text-tertiary border border-tertiary/20">WARN</span>
+</div>
+<div class="col-span-5 font-code-snippet text-code-snippet text-on-surface-variant truncate">
+                                eth.mainnet.gateway.io/rpc/high-freq
+                            </div>
+<div class="col-span-4 flex justify-between items-center">
+<span class="font-code-snippet text-code-snippet text-on-surface">agt_2b11...9c4</span>
+<span class="font-code-snippet text-code-snippet text-tertiary">82.4%</span>
+</div>
+</div>
+<!-- Item 3: Block -->
+<div class="grid grid-cols-12 gap-sm p-sm px-md items-center hover:bg-surface-variant/30 transition-colors">
+<div class="col-span-3 flex items-center gap-xs">
+<span class="material-symbols-outlined text-error" style="font-variation-settings: 'FILL' 1; font-size: 16px;">block</span>
+<span class="font-status-label text-status-label px-2 py-1 rounded bg-error-container/20 text-error border border-error/20">BLOCK</span>
+</div>
+<div class="col-span-5 font-code-snippet text-code-snippet text-on-surface-variant truncate">
+                                unknown-proxy.tor.onion/execute
+                            </div>
+<div class="col-span-4 flex justify-between items-center">
+<span class="font-code-snippet text-code-snippet text-on-surface">agt_xx09...err</span>
+<span class="font-code-snippet text-code-snippet text-error">12.1%</span>
+</div>
+</div>
+<!-- Item 4: Approve -->
+<div class="grid grid-cols-12 gap-sm p-sm px-md items-center hover:bg-surface-variant/30 transition-colors">
+<div class="col-span-3 flex items-center gap-xs">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1; font-size: 16px;">check_circle</span>
+<span class="font-status-label text-status-label px-2 py-1 rounded bg-secondary-container/20 text-secondary border border-secondary/20">APPROVE</span>
+</div>
+<div class="col-span-5 font-code-snippet text-code-snippet text-on-surface-variant truncate">
+                                ipfs.storage.pool/add_node
+                            </div>
+<div class="col-span-4 flex justify-between items-center">
+<span class="font-code-snippet text-code-snippet text-on-surface">agt_7d65...2b9</span>
+<span class="font-code-snippet text-code-snippet text-secondary">97.5%</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- AgentRegistry.sol Log Viewer -->
+<div class="col-span-1 lg:col-span-12 bg-surface-container-lowest rounded-xl border border-outline-variant flex flex-col overflow-hidden">
+<div class="p-md border-b border-outline-variant bg-surface-container-low flex justify-between items-center">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-on-surface-variant" style="font-size: 18px;">terminal</span>
+<h2 class="font-body-sm text-body-sm font-bold text-on-surface uppercase tracking-wider">AgentRegistry.sol / Outcomes</h2>
+</div>
+<div class="flex gap-2">
+<div class="w-3 h-3 rounded-full bg-outline-variant"></div>
+<div class="w-3 h-3 rounded-full bg-outline-variant"></div>
+<div class="w-3 h-3 rounded-full bg-outline-variant"></div>
+</div>
+</div>
+<!-- Pure Black Background for technical logs as per guide, using lowest container -->
+<div class="p-md bg-[#000000] font-code-snippet text-code-snippet h-64 overflow-y-auto log-viewer">
+<pre class="text-on-surface-variant leading-relaxed"><span class="text-outline">08:42:10.123</span> [INFO]  <span class="text-primary">AgentRegistry</span>: Parsing block <span class="text-secondary">18492011</span>...
+<span class="text-outline">08:42:10.145</span> [INFO]  <span class="text-primary">AgentRegistry</span>: Found 1 new registration event.
+<span class="text-outline">08:42:10.201</span> [EVAL]  Starting evaluation for <span class="text-on-surface">0x7a8...9f1</span>
+<span class="text-outline">08:42:10.250</span> [WARN]  Heuristic flag: <span class="text-tertiary">High transaction frequency detected.</span>
+<span class="text-outline">08:42:10.890</span> [ML_OP] Model consensus reached. Score: <span class="text-tertiary">0.82</span>.
+<span class="text-outline">08:42:11.002</span> [TX]    Broadcasting outcome to registry...
+<span class="text-outline">08:42:14.500</span> [INFO]  Tx confirmed: <span class="text-primary hover:underline cursor-pointer">0xbb4a...cc92</span>
+<span class="text-outline">08:45:01.000</span> [INFO]  <span class="text-primary">AgentRegistry</span>: Parsing block <span class="text-secondary">18492012</span>...
+<span class="text-outline">08:45:01.050</span> [EVAL]  Starting evaluation for <span class="text-on-surface">0x11b...a44</span>
+<span class="text-outline">08:45:01.990</span> [ML_OP] Model consensus reached. Score: <span class="text-error">0.12</span>.
+<span class="text-outline">08:45:02.100</span> [CRIT]  <span class="text-error bg-error-container/20 px-1">SECURITY HALT INITIATED. Contract blocked.</span>
+<span class="text-outline">08:45:02.150</span> [TX]    Broadcasting blocking state to registry...
+</pre>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-lowest dark:bg-surface-container-lowest w-full py-xl px-gutter flex flex-col md:flex-row justify-between items-center gap-md border-t border-outline-variant flat no shadows mt-auto">
+<div class="text-on-surface font-bold font-body-sm text-body-sm">
+            © 2024 Vigil AI. Secure Machine Payments.
+        </div>
+<nav class="flex gap-md font-status-label text-status-label">
+<a class="text-on-surface-variant hover:text-primary transition-colors Default" href="#">Terms</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors Default" href="#">Privacy</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors Default" href="#">Status</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors Default" href="#">Twitter</a>
+</nav>
+</footer>
+</body></html>

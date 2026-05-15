@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Vigil Documentation - API Reference</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@600;700&amp;family=Inter:wght@400&amp;family=JetBrains+Mono:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "outline-variant": "#414755",
+                    "surface-container-low": "#181c23",
+                    "on-background": "#e0e2ed",
+                    "on-tertiary": "#472a00",
+                    "on-secondary": "#003824",
+                    "on-error": "#690005",
+                    "on-secondary-fixed": "#002113",
+                    "on-surface-variant": "#c1c6d7",
+                    "on-error-container": "#ffdad6",
+                    "primary": "#adc6ff",
+                    "inverse-on-surface": "#2d3039",
+                    "primary-fixed-dim": "#adc6ff",
+                    "surface": "#10131b",
+                    "surface-tint": "#adc6ff",
+                    "on-tertiary-fixed-variant": "#653e00",
+                    "background": "#10131b",
+                    "tertiary-fixed-dim": "#ffb95f",
+                    "surface-bright": "#363942",
+                    "inverse-surface": "#e0e2ed",
+                    "surface-container-lowest": "#0b0e16",
+                    "tertiary-container": "#ca8100",
+                    "primary-fixed": "#d8e2ff",
+                    "on-primary-container": "#00285c",
+                    "secondary": "#4edea3",
+                    "tertiary-fixed": "#ffddb8",
+                    "primary-container": "#4b8eff",
+                    "surface-variant": "#31353d",
+                    "outline": "#8b90a0",
+                    "surface-container-high": "#272a32",
+                    "on-tertiary-fixed": "#2a1700",
+                    "surface-container-highest": "#31353d",
+                    "error": "#ffb4ab",
+                    "on-secondary-container": "#00311f",
+                    "error-container": "#93000a",
+                    "on-surface": "#e0e2ed",
+                    "on-primary-fixed-variant": "#004493",
+                    "on-secondary-fixed-variant": "#005236",
+                    "on-primary": "#002e69",
+                    "on-tertiary-container": "#3e2400",
+                    "on-primary-fixed": "#001a41",
+                    "secondary-container": "#00a572",
+                    "surface-dim": "#10131b",
+                    "inverse-primary": "#005bc1",
+                    "secondary-fixed-dim": "#4edea3",
+                    "tertiary": "#ffb95f",
+                    "secondary-fixed": "#6ffbbe",
+                    "surface-container": "#1c2028"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "sm": "0.5rem",
+                    "xs": "0.25rem",
+                    "xl": "2rem",
+                    "lg": "1.5rem",
+                    "md": "1rem",
+                    "gutter": "1rem",
+                    "base": "4px",
+                    "container-margin": "2rem"
+            },
+            "fontFamily": {
+                    "body-base": ["Inter"],
+                    "code-snippet": ["JetBrains Mono"],
+                    "display-lg": ["Hanken Grotesk"],
+                    "status-label": ["JetBrains Mono"],
+                    "headline-md": ["Hanken Grotesk"],
+                    "body-sm": ["Inter"]
+            },
+            "fontSize": {
+                    "body-base": ["16px", {"lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "400"}],
+                    "code-snippet": ["13px", {"lineHeight": "20px", "letterSpacing": "0em", "fontWeight": "400"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "status-label": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "letterSpacing": "0em", "fontWeight": "400"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .code-block-scroll::-webkit-scrollbar {
+            height: 6px;
+        }
+        .code-block-scroll::-webkit-scrollbar-track {
+            background: #10131b; 
+        }
+        .code-block-scroll::-webkit-scrollbar-thumb {
+            background: #414755; 
+            border-radius: 4px;
+        }
+        .code-block-scroll::-webkit-scrollbar-thumb:hover {
+            background: #8b90a0; 
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-sm text-body-sm min-h-screen flex flex-col">
+<!-- TopAppBar Component -->
+<header class="bg-surface/80 dark:bg-surface/80 backdrop-blur-md border-b border-outline-variant docked full-width top-0 sticky z-50">
+<div class="flex justify-between items-center w-full px-gutter h-16 max-w-full mx-auto">
+<!-- Brand Logo -->
+<div class="font-headline-md text-headline-md font-bold text-on-surface tracking-tight">Vigil</div>
+<!-- Navigation Links -->
+<nav class="hidden md:flex gap-lg h-full items-end font-body-sm text-body-sm">
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/50 transition-colors duration-200 pb-4 px-2" href="#">Dashboard</a>
+<a class="text-primary dark:text-primary font-bold border-b-2 border-primary pb-1 mb-3 px-2" href="#">Documentation</a>
+</nav>
+<!-- Trailing Actions -->
+<div class="flex items-center gap-md text-primary dark:text-primary-fixed-dim">
+<button class="font-status-label text-status-label bg-inverse-primary text-on-primary px-4 py-2 rounded-DEFAULT hover:bg-primary-container transition-colors duration-200">Connect Wallet</button>
+<div class="flex gap-sm">
+<span class="material-symbols-outlined hover:bg-surface-variant/50 p-2 rounded-full cursor-pointer transition-colors duration-200" title="account_balance_wallet">account_balance_wallet</span>
+<span class="material-symbols-outlined hover:bg-surface-variant/50 p-2 rounded-full cursor-pointer transition-colors duration-200" title="settings">settings</span>
+</div>
+</div>
+</div>
+</header>
+<div class="flex flex-1 overflow-hidden">
+<!-- SideNavBar Component -->
+<aside class="hidden md:flex bg-surface-container-low dark:bg-surface-container-low text-primary dark:text-primary docked left h-full w-64 border-r border-outline-variant flex-col h-[calc(100vh-4rem)] sticky top-16 py-md overflow-y-auto">
+<div class="px-md mb-xl">
+<h2 class="font-headline-md text-headline-md text-primary">Documentation</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-xs">Technical Guides</p>
+</div>
+<nav class="flex flex-col gap-sm flex-1">
+<a class="text-on-surface-variant hover:text-on-surface mx-2 px-4 py-2 flex items-center gap-sm rounded-DEFAULT hover:bg-surface-container-high transition-all font-status-label text-status-label" href="#">
+<span class="material-symbols-outlined">rocket_launch</span>
+                    Quick Start
+                </a>
+<a class="bg-secondary-container text-on-secondary-container rounded-xl mx-2 px-4 py-2 font-bold flex items-center gap-sm scale-[0.98] transition-transform font-status-label text-status-label" href="#">
+<span class="material-symbols-outlined">terminal</span>
+                    API Reference
+                </a>
+<a class="text-on-surface-variant hover:text-on-surface mx-2 px-4 py-2 flex items-center gap-sm rounded-DEFAULT hover:bg-surface-container-high transition-all font-status-label text-status-label" href="#">
+<span class="material-symbols-outlined">security_update_good</span>
+                    Risk Models
+                </a>
+<a class="text-on-surface-variant hover:text-on-surface mx-2 px-4 py-2 flex items-center gap-sm rounded-DEFAULT hover:bg-surface-container-high transition-all font-status-label text-status-label" href="#">
+<span class="material-symbols-outlined">receipt_long</span>
+                    Safety Logs
+                </a>
+</nav>
+<div class="px-md mt-xl mb-md">
+<button class="w-full border border-primary text-primary hover:bg-surface-container-high font-status-label text-status-label py-2 rounded-DEFAULT transition-colors">
+                    View SDK
+                </button>
+</div>
+<div class="pt-md border-t border-outline-variant flex flex-col gap-sm">
+<a class="text-on-surface-variant hover:text-on-surface mx-2 px-4 py-2 flex items-center gap-sm rounded-DEFAULT hover:bg-surface-container-high transition-all font-status-label text-status-label" href="#">
+<span class="material-symbols-outlined">help_outline</span>
+                    Support
+                </a>
+<a class="text-on-surface-variant hover:text-on-surface mx-2 px-4 py-2 flex items-center gap-sm rounded-DEFAULT hover:bg-surface-container-high transition-all font-status-label text-status-label" href="#">
+<span class="material-symbols-outlined">code</span>
+                    Github
+                </a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 overflow-y-auto p-gutter lg:p-container-margin pb-24">
+<div class="max-w-4xl mx-auto space-y-xl">
+<!-- Page Header -->
+<header class="border-b border-outline-variant pb-md">
+<div class="flex items-center gap-sm mb-xs text-primary font-status-label text-status-label">
+<span>API Reference</span>
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+<span class="text-on-surface-variant">Integration</span>
+</div>
+<h1 class="font-display-lg text-display-lg text-on-surface">MCP Tool Integration</h1>
+<p class="font-body-base text-body-base text-on-surface-variant mt-sm max-w-2xl">
+                        Integrate Vigil's security evaluation layer into your Kite workflows. This guide covers the core tools for evaluating risk before transaction execution and recording the outcome for continuous model training.
+                    </p>
+</header>
+<!-- Section: Session Creation -->
+<section class="space-y-md">
+<h2 class="font-headline-md text-headline-md text-on-surface flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary">key</span>
+                        Initializing the Agent Session
+                    </h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+                        Before invoking Vigil tools, you must establish a secure agent session via the Kite CLI. This provisions the necessary cryptographic context for evaluating payments.
+                    </p>
+<div class="bg-[#000000] border border-outline-variant rounded-lg overflow-hidden flex flex-col">
+<div class="bg-surface-container border-b border-outline-variant px-md py-sm flex justify-between items-center">
+<span class="font-status-label text-status-label text-on-surface-variant">Terminal</span>
+<span class="material-symbols-outlined text-on-surface-variant text-[16px] cursor-pointer hover:text-primary">content_copy</span>
+</div>
+<div class="p-md overflow-x-auto code-block-scroll">
+<pre class="font-code-snippet text-code-snippet text-primary-fixed-dim"><code><span class="text-secondary">$</span> kpass agent:session create \
+    --network=ethereum \
+    --policy=strict_aml \
+    --ttl=3600</code></pre>
+</div>
+</div>
+</section>
+<!-- Section: Evaluate Payment -->
+<section class="space-y-md">
+<h2 class="font-headline-md text-headline-md text-on-surface flex items-center gap-sm">
+<span class="material-symbols-outlined text-secondary">policy</span>
+                        Evaluating Payments <span class="font-code-snippet text-code-snippet bg-surface-container px-2 py-1 rounded text-on-surface-variant ml-2">evaluate_payment</span>
+</h2>
+<div class="bg-surface-container-low border border-outline-variant rounded-lg p-md relative overflow-hidden">
+<!-- Glassmorphic highlight -->
+<div class="absolute top-0 right-0 w-32 h-32 bg-secondary/10 blur-3xl rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-md relative z-10">
+                            The primary evaluation endpoint. It analyzes the transaction parameters against active Risk Models and returns a confidence score alongside a deterministic action (ALLOW, BLOCK, REQUIRE_AUTH).
+                        </p>
+<div class="bg-[#000000] rounded border border-surface-variant overflow-hidden relative z-10">
+<div class="p-md overflow-x-auto code-block-scroll">
+<pre class="font-code-snippet text-code-snippet text-on-surface"><code><span class="text-tertiary">import</span> { evaluate_payment } <span class="text-tertiary">from</span> <span class="text-primary-fixed-dim">'@vigil/mcp-tools'</span>;
+
+<span class="text-tertiary">const</span> result = <span class="text-secondary">await</span> <span class="text-primary-fixed-dim">evaluate_payment</span>({
+    target_address: <span class="text-secondary-fixed">"0x742d35Cc6634C0532925a3b844Bc454e4438f44e"</span>,
+    amount: <span class="text-secondary-fixed">"1.5"</span>,
+    currency: <span class="text-secondary-fixed">"ETH"</span>,
+    context: {
+        user_id: <span class="text-secondary-fixed">"usr_982bV"</span>,
+        device_fingerprint: <span class="text-secondary-fixed">"x8f_991"</span>
+    }
+});
+
+<span class="text-outline">/* 
+Returns:
+{
+    "status": "CAUTION",
+    "confidence_score": 72.4,
+    "action": "REQUIRE_AUTH",
+    "flags": ["NEW_DEVICE", "HIGH_VALUE"]
+}
+*/</span></code></pre>
+</div>
+</div>
+</div>
+</section>
+<!-- Section: Record Outcome -->
+<section class="space-y-md">
+<h2 class="font-headline-md text-headline-md text-on-surface flex items-center gap-sm">
+<span class="material-symbols-outlined text-tertiary">database</span>
+                        Recording Outcomes <span class="font-code-snippet text-code-snippet bg-surface-container px-2 py-1 rounded text-on-surface-variant ml-2">record_outcome</span>
+</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+                        Crucial for model feedback. After a transaction is finalized (or fails), log the result. This data streams back to the Safety Logs and trains the continuous learning models.
+                    </p>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+<!-- Code Widget -->
+<div class="bg-[#000000] border border-outline-variant rounded-lg p-md overflow-x-auto code-block-scroll flex-1">
+<pre class="font-code-snippet text-code-snippet text-on-surface"><code><span class="text-secondary">await</span> <span class="text-primary-fixed-dim">record_outcome</span>({
+    eval_id: result.eval_id,
+    tx_hash: <span class="text-secondary-fixed">"0xabc123..."</span>,
+    status: <span class="text-secondary-fixed">"SUCCESS"</span>,
+    gas_used: <span class="text-tertiary">21000</span>
+});</code></pre>
+</div>
+<!-- Info Widget -->
+<div class="bg-surface-container border border-outline-variant rounded-lg p-md flex flex-col justify-center">
+<div class="flex items-center gap-sm mb-sm border-b border-outline-variant pb-2">
+<span class="font-status-label text-status-label text-secondary">SYS-LOG-REQ</span>
+<span class="font-code-snippet text-code-snippet text-on-surface-variant text-[10px] ml-auto">CRITICAL PATH</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+                                Failure to record outcomes within 24 hours of an evaluation will degrade the precision of your tenant-specific risk models. Ensure this step is wrapped in robust error handling.
+                            </p>
+</div>
+</div>
+</section>
+</div>
+</main>
+</div>
+</body></html>

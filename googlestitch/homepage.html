@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Vigil - Secure Machine Payments</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700;800&amp;family=Inter:wght@400&amp;family=JetBrains+Mono:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "outline-variant": "#414755",
+                      "surface-container-low": "#181c23",
+                      "on-background": "#e0e2ed",
+                      "on-tertiary": "#472a00",
+                      "on-secondary": "#003824",
+                      "on-error": "#690005",
+                      "on-secondary-fixed": "#002113",
+                      "on-surface-variant": "#c1c6d7",
+                      "on-error-container": "#ffdad6",
+                      "primary": "#adc6ff",
+                      "inverse-on-surface": "#2d3039",
+                      "primary-fixed-dim": "#adc6ff",
+                      "surface": "#10131b",
+                      "surface-tint": "#adc6ff",
+                      "on-tertiary-fixed-variant": "#653e00",
+                      "background": "#10131b",
+                      "tertiary-fixed-dim": "#ffb95f",
+                      "surface-bright": "#363942",
+                      "inverse-surface": "#e0e2ed",
+                      "surface-container-lowest": "#0b0e16",
+                      "tertiary-container": "#ca8100",
+                      "primary-fixed": "#d8e2ff",
+                      "on-primary-container": "#00285c",
+                      "secondary": "#4edea3",
+                      "tertiary-fixed": "#ffddb8",
+                      "primary-container": "#4b8eff",
+                      "surface-variant": "#31353d",
+                      "outline": "#8b90a0",
+                      "surface-container-high": "#272a32",
+                      "on-tertiary-fixed": "#2a1700",
+                      "surface-container-highest": "#31353d",
+                      "error": "#ffb4ab",
+                      "on-secondary-container": "#00311f",
+                      "error-container": "#93000a",
+                      "on-surface": "#e0e2ed",
+                      "on-primary-fixed-variant": "#004493",
+                      "on-secondary-fixed-variant": "#005236",
+                      "on-primary": "#002e69",
+                      "on-tertiary-container": "#3e2400",
+                      "on-primary-fixed": "#001a41",
+                      "secondary-container": "#00a572",
+                      "surface-dim": "#10131b",
+                      "inverse-primary": "#005bc1",
+                      "secondary-fixed-dim": "#4edea3",
+                      "tertiary": "#ffb95f",
+                      "secondary-fixed": "#6ffbbe",
+                      "surface-container": "#1c2028"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "sm": "0.5rem",
+                      "xs": "0.25rem",
+                      "xl": "2rem",
+                      "lg": "1.5rem",
+                      "md": "1rem",
+                      "gutter": "1rem",
+                      "base": "4px",
+                      "container-margin": "2rem"
+              },
+              "fontFamily": {
+                      "body-base": [
+                              "Hanken Grotesk", "sans-serif"
+                      ],
+                      "code-snippet": [
+                              "JetBrains Mono"
+                      ],
+                      "display-lg": [
+                              "Hanken Grotesk"
+                      ],
+                      "status-label": [
+                              "JetBrains Mono"
+                      ],
+                      "headline-md": [
+                              "Hanken Grotesk"
+                      ],
+                      "body-sm": [
+                              "Hanken Grotesk", "sans-serif"
+                      ]
+              },
+              "fontSize": {
+                      "body-base": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "letterSpacing": "0em",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "code-snippet": [
+                              "13px",
+                              {
+                                      "lineHeight": "20px",
+                                      "letterSpacing": "0em",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "56px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "status-label": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "letterSpacing": "0em",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        .bg-grid {
+            background-size: 60px 60px;
+            background-image: 
+                linear-gradient(to right, rgba(139, 144, 160, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(139, 144, 160, 0.05) 1px, transparent 1px);
+        }
+        
+        .ambient-glow-blue {
+            background: radial-gradient(circle at 20% 30%, rgba(75, 142, 255, 0.12) 0%, transparent 60%);
+        }
+        
+        .ambient-glow-teal {
+            background: radial-gradient(circle at 80% 70%, rgba(78, 222, 163, 0.1) 0%, transparent 60%);
+        }
+
+        @keyframes particle-drift {
+            0% { background-position: 0px 0px, 60px 60px; }
+            100% { background-position: 0px -120px, 60px -60px; }
+        }
+
+        .particles {
+            background-image: 
+                radial-gradient(circle, rgba(173, 198, 255, 0.2) 1.5px, transparent 1.5px),
+                radial-gradient(circle, rgba(173, 198, 255, 0.1) 1px, transparent 1px);
+            background-size: 120px 120px;
+            animation: particle-drift 60s linear infinite;
+        }
+        
+        @keyframes pulse-ring {
+            0% {
+                transform: scale(0.8);
+                opacity: 0.5;
+            }
+            50% {
+                transform: scale(1.1);
+                opacity: 0.1;
+            }
+            100% {
+                transform: scale(0.8);
+                opacity: 0.5;
+            }
+        }
+        
+        @keyframes spin-slow {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        .mesh-ring {
+            animation: pulse-ring 8s infinite ease-in-out;
+            transform-origin: center;
+        }
+        
+        .mesh-ring:nth-child(2) {
+            animation-delay: -2s;
+            animation-duration: 10s;
+        }
+        
+        .mesh-ring:nth-child(3) {
+            animation-delay: -4s;
+            animation-duration: 12s;
+        }
+
+        .spin-container {
+            animation: spin-slow 40s linear infinite;
+        }
+
+        .glass-card {
+            background: rgba(24, 28, 35, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(65, 71, 85, 0.4);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface min-h-screen flex flex-col font-body-base text-body-base antialiased relative overflow-x-hidden">
+<!-- Global ambient background effect -->
+<div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+<div class="absolute inset-0 ambient-glow-blue"></div>
+<div class="absolute inset-0 ambient-glow-teal"></div>
+<div class="absolute inset-0 bg-grid"></div>
+<div class="absolute inset-0 particles"></div>
+</div>
+<!-- TopAppBar -->
+<header class="w-full bg-surface/80 dark:bg-surface/80 backdrop-blur-md sticky top-0 z-50 border-b border-outline-variant">
+<div class="flex justify-between items-center w-full px-gutter h-16 max-w-full mx-auto">
+<!-- Brand Logo -->
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary font-variation-settings-'FILL'-1 text-[28px]">shield_locked</span>
+<span class="font-headline-md text-headline-md font-bold text-on-surface tracking-tight">Vigil</span>
+</div>
+<!-- Navigation Links -->
+<nav class="hidden md:flex items-center gap-lg">
+<a class="text-on-surface-variant hover:text-on-surface transition-colors font-body-base font-semibold" href="#features">Features</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors font-body-base font-semibold" href="#security-loop">Security Loop</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors font-body-base font-semibold" href="#how-it-works">How It Works</a>
+</nav>
+<!-- Trailing Actions -->
+<div class="flex items-center gap-md">
+<div class="flex items-center gap-sm text-on-surface-variant dark:text-on-surface-variant">
+<button aria-label="Wallet" class="hover:bg-surface-variant/50 transition-colors duration-200 p-2 rounded-full flex items-center justify-center group">
+<span class="material-symbols-outlined group-active:opacity-80 group-active:scale-95 transition-all">account_balance_wallet</span>
+</button>
+<button aria-label="Settings" class="hover:bg-surface-variant/50 transition-colors duration-200 p-2 rounded-full flex items-center justify-center group">
+<span class="material-symbols-outlined group-active:opacity-80 group-active:scale-95 transition-all">settings</span>
+</button>
+</div>
+<button class="hidden md:flex bg-surface-container-high hover:bg-surface-variant text-primary font-status-label text-status-label px-4 py-2 rounded border border-outline-variant transition-colors items-center gap-xs group">
+                    Connect Wallet
+                </button>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="flex-grow flex flex-col relative z-10">
+<!-- Hero Section -->
+<section class="px-gutter py-12 md:py-24 relative min-h-[80vh] flex items-center">
+<div class="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-xl items-center">
+<!-- Left Content Area -->
+<div class="flex flex-col items-start text-left z-20">
+<!-- Headline -->
+<h1 class="font-display-lg text-[56px] leading-[1.1] md:text-[72px] md:leading-[1.05] text-on-surface mb-lg font-bold tracking-tighter">
+                The Trust Layer for <br class="hidden md:block"/>
+<span class="text-transparent bg-clip-text bg-gradient-to-r from-primary via-primary-container to-secondary">Machine Economies.</span>
+</h1>
+<!-- Subheadline -->
+<p class="font-body-base text-[18px] leading-relaxed text-on-surface-variant max-w-xl mb-xl opacity-90 border-l-2 border-outline-variant/30 pl-md">
+                Vigil provides real-time advisory and enforcement for Kite-based agent transactions. Ensure every automated payment is validated, compliant, and securely executed within defined risk parameters.
+            </p>
+<!-- Primary Action -->
+<div class="flex flex-col sm:flex-row items-center gap-md">
+<button class="w-full sm:w-auto bg-primary-container hover:bg-primary text-on-primary-container px-8 py-4 rounded-xl font-headline-md text-[18px] font-bold tracking-tight flex items-center justify-center gap-sm transition-all duration-300 hover:shadow-[0_0_30px_rgba(75,142,255,0.4)] hover:-translate-y-1 active:scale-95 group relative overflow-hidden">
+<div class="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<span class="material-symbols-outlined text-[20px] relative z-10">account_balance_wallet</span>
+<span class="relative z-10">Connect Wallet</span>
+<span class="material-symbols-outlined opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all text-[20px] relative z-10">arrow_forward</span>
+</button>
+<!-- Terminal aesthetic element -->
+<div class="font-code-snippet text-code-snippet text-outline flex items-center gap-sm bg-surface-container-high/50 px-4 py-3 rounded-lg border border-outline-variant/30 backdrop-blur-sm">
+<span class="material-symbols-outlined text-[16px] text-secondary">terminal</span>
+<span class="opacity-80">Awaiting payload...</span>
+<span class="w-1.5 h-4 bg-outline animate-pulse ml-1"></span>
+</div>
+</div>
+<!-- Tech Stack/Logos -->
+<div class="mt-xl pt-xl border-t border-outline-variant/20 w-full max-w-xl">
+<p class="font-status-label text-status-label text-outline mb-sm tracking-wider uppercase">Securing transactions across</p>
+<div class="flex gap-lg items-center opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
+<div class="font-headline-md text-[20px] font-bold text-on-surface flex items-center gap-xs"><span class="material-symbols-outlined">api</span> Kite</div>
+<div class="font-headline-md text-[20px] font-bold text-on-surface flex items-center gap-xs"><span class="material-symbols-outlined">memory</span> Agents</div>
+<div class="font-headline-md text-[20px] font-bold text-on-surface flex items-center gap-xs"><span class="material-symbols-outlined">payments</span> Defi</div>
+</div>
+</div>
+</div>
+<!-- Right Content Area / Animated Visual Object -->
+<div class="relative w-full aspect-square flex items-center justify-center mt-xl lg:mt-0 z-10 opacity-80 md:opacity-100">
+<!-- Background Glow -->
+<div class="absolute inset-0 bg-primary/10 rounded-full blur-[100px] pointer-events-none"></div>
+<!-- SVG Mesh -->
+<svg class="w-full h-full max-w-[600px] spin-container" viewbox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<lineargradient id="primaryGrad" x1="0%" x2="100%" y1="0%" y2="100%">
+<stop offset="0%" stop-color="#adc6ff" stop-opacity="0.8"></stop>
+<stop offset="100%" stop-color="#4b8eff" stop-opacity="0.2"></stop>
+</lineargradient>
+<lineargradient id="secondaryGrad" x1="100%" x2="0%" y1="0%" y2="100%">
+<stop offset="0%" stop-color="#4edea3" stop-opacity="0.6"></stop>
+<stop offset="100%" stop-color="#00a572" stop-opacity="0.1"></stop>
+</lineargradient>
+<filter id="glow">
+<fegaussianblur result="coloredBlur" stddeviation="4"></fegaussianblur>
+<femerge>
+<femergenode in="coloredBlur"></femergenode>
+<femergenode in="SourceGraphic"></femergenode>
+</femerge>
+</filter>
+</defs>
+<!-- Outer Ring -->
+<circle class="mesh-ring" cx="200" cy="200" fill="none" r="180" stroke="url(#primaryGrad)" stroke-dasharray="4 8" stroke-width="1"></circle>
+<circle class="mesh-ring" cx="200" cy="200" fill="none" r="160" stroke="url(#secondaryGrad)" stroke-dasharray="10 20" stroke-width="2"></circle>
+<!-- Inner Geometric Mesh -->
+<g class="mesh-ring" style="transform-origin: 200px 200px;">
+<polygon fill="none" points="200,40 340,120 340,280 200,360 60,280 60,120" stroke="url(#primaryGrad)" stroke-width="1.5"></polygon>
+<polygon fill="none" points="200,80 300,140 300,260 200,320 100,260 100,140" stroke="url(#secondaryGrad)" stroke-width="1"></polygon>
+<line stroke="url(#primaryGrad)" stroke-dasharray="4 4" stroke-width="0.5" x1="200" x2="200" y1="40" y2="360"></line>
+<line stroke="url(#primaryGrad)" stroke-dasharray="4 4" stroke-width="0.5" x1="60" x2="340" y1="120" y2="280"></line>
+<line stroke="url(#primaryGrad)" stroke-dasharray="4 4" stroke-width="0.5" x1="60" x2="340" y1="280" y2="120"></line>
+</g>
+<!-- Central Core -->
+<circle class="animate-pulse" cx="200" cy="200" fill="url(#primaryGrad)" filter="url(#glow)" r="40"></circle>
+<circle cx="200" cy="200" fill="#ffffff" opacity="0.8" r="20"></circle>
+<path d="M190 190 L210 190 L210 210 L190 210 Z" fill="none" stroke="#10131b" stroke-width="2"></path>
+<circle cx="200" cy="200" fill="#10131b" r="4"></circle>
+</svg>
+</div>
+</div>
+</section>
+<!-- Features Section -->
+<section class="py-24 px-gutter bg-surface-container-lowest/50" id="features">
+<div class="max-w-7xl mx-auto">
+<div class="text-center mb-16">
+<h2 class="font-display-lg text-4xl md:text-5xl font-bold mb-4">Core Capabilities</h2>
+<p class="text-on-surface-variant max-w-2xl mx-auto">Enterprise-grade security infrastructure built natively for autonomous agent interactions.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Feature 1 -->
+<div class="glass-card rounded-2xl p-8 hover:-translate-y-1 transition-transform duration-300">
+<div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-primary text-2xl">policy</span>
+</div>
+<h3 class="font-headline-md text-xl font-bold mb-3">Policy Enforcement</h3>
+<p class="text-on-surface-variant text-sm">Define granular transaction limits, approved counter-parties, and strict execution conditions that agents cannot bypass.</p>
+</div>
+<!-- Feature 2 -->
+<div class="glass-card rounded-2xl p-8 hover:-translate-y-1 transition-transform duration-300">
+<div class="w-12 h-12 rounded-lg bg-secondary/10 flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-secondary text-2xl">radar</span>
+</div>
+<h3 class="font-headline-md text-xl font-bold mb-3">Real-time Auditing</h3>
+<p class="text-on-surface-variant text-sm">Every intent, evaluation, and execution is cryptographically logged, providing full provenance for agentic behavior.</p>
+</div>
+<!-- Feature 3 -->
+<div class="glass-card rounded-2xl p-8 hover:-translate-y-1 transition-transform duration-300">
+<div class="w-12 h-12 rounded-lg bg-tertiary/10 flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-tertiary text-2xl">lock_clock</span>
+</div>
+<h3 class="font-headline-md text-xl font-bold mb-3">Time-locked Execution</h3>
+<p class="text-on-surface-variant text-sm">Quarantine high-risk transactions automatically. Require multi-sig human approval for payloads exceeding risk thresholds.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Security Loop Section -->
+<section class="py-24 px-gutter" id="security-loop">
+<div class="max-w-7xl mx-auto">
+<div class="mb-16">
+<h2 class="font-display-lg text-4xl md:text-5xl font-bold mb-4">The Vigil Security Loop</h2>
+<p class="text-on-surface-variant max-w-2xl">A deterministic architecture ensuring AI agents operate strictly within verified bounds.</p>
+</div>
+<div class="glass-card rounded-3xl p-8 md:p-12 border border-outline-variant/30">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-4 relative">
+<!-- Connecting Line (Desktop) -->
+<div class="hidden md:block absolute top-1/2 left-0 w-full h-px bg-gradient-to-r from-outline-variant/20 via-outline-variant/50 to-outline-variant/20 -z-10"></div>
+<!-- Step 1 -->
+<div class="flex flex-col items-center text-center bg-surface-container-lowest/80 p-6 rounded-2xl border border-outline-variant/20">
+<div class="w-16 h-16 rounded-full bg-surface border-2 border-primary/30 flex items-center justify-center mb-6 z-10 shadow-[0_0_20px_rgba(75,142,255,0.15)]">
+<span class="material-symbols-outlined text-primary text-3xl">sensors</span>
+</div>
+<h4 class="font-headline-md text-lg font-bold mb-2">1. Sensor</h4>
+<p class="text-on-surface-variant text-sm">Agent intent is captured and normalized before broadcast.</p>
+</div>
+<!-- Step 2 -->
+<div class="flex flex-col items-center text-center bg-surface-container-lowest/80 p-6 rounded-2xl border border-outline-variant/20">
+<div class="w-16 h-16 rounded-full bg-surface border-2 border-amber-500/30 flex items-center justify-center mb-6 z-10 shadow-[0_0_20px_rgba(245,158,11,0.15)]">
+<span class="material-symbols-outlined text-amber-500 text-3xl">account_tree</span>
+</div>
+<h4 class="font-headline-md text-lg font-bold mb-2">2. Guide</h4>
+<p class="text-on-surface-variant text-sm">Contextual policies and risk limits are mapped against the payload.</p>
+</div>
+<!-- Step 3 -->
+<div class="flex flex-col items-center text-center bg-surface-container-lowest/80 p-6 rounded-2xl border border-outline-variant/20">
+<div class="w-16 h-16 rounded-full bg-surface border-2 border-emerald-500/30 flex items-center justify-center mb-6 z-10 shadow-[0_0_20px_rgba(16,185,129,0.15)]">
+<span class="material-symbols-outlined text-emerald-500 text-3xl">verified_user</span>
+</div>
+<h4 class="font-headline-md text-lg font-bold mb-2">3. Verifier</h4>
+<p class="text-on-surface-variant text-sm">Cryptographic sign-off is granted or denied based on strict logic.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- How it Works Section -->
+<section class="py-24 px-gutter bg-surface-container-lowest/50 border-t border-outline-variant/20" id="how-it-works">
+<div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+<div>
+<h2 class="font-display-lg text-4xl md:text-5xl font-bold mb-6">MCP Tool Integration</h2>
+<p class="text-on-surface-variant mb-8 leading-relaxed">
+                    Vigil injects directly into the Model Context Protocol, providing an un-bypassable verification layer for any tool call attempting financial execution.
+                </p>
+<ul class="space-y-6">
+<li class="flex items-start gap-4">
+<div class="mt-1 w-6 h-6 rounded bg-primary/20 flex items-center justify-center flex-shrink-0">
+<span class="font-code-snippet text-xs text-primary">01</span>
+</div>
+<div>
+<h4 class="font-code-snippet font-bold mb-1">evaluate_payment</h4>
+<p class="text-sm text-on-surface-variant">Pre-flight simulation checks balance, recipient trust score, and temporal limits.</p>
+</div>
+</li>
+<li class="flex items-start gap-4">
+<div class="mt-1 w-6 h-6 rounded bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
+<span class="font-code-snippet text-xs text-emerald-500">02</span>
+</div>
+<div>
+<h4 class="font-code-snippet font-bold mb-1">execution_wrapper</h4>
+<p class="text-sm text-on-surface-variant">If approved, the payload is wrapped with a single-use authorization token.</p>
+</div>
+</li>
+<li class="flex items-start gap-4">
+<div class="mt-1 w-6 h-6 rounded bg-outline-variant/40 flex items-center justify-center flex-shrink-0">
+<span class="font-code-snippet text-xs text-on-surface">03</span>
+</div>
+<div>
+<h4 class="font-code-snippet font-bold mb-1">record_outcome</h4>
+<p class="text-sm text-on-surface-variant">Final state is committed to the ledger, updating agent reputation scores.</p>
+</div>
+</li>
+</ul>
+</div>
+<div class="bg-[#0d1117] rounded-xl border border-outline-variant/40 p-6 font-code-snippet text-sm shadow-2xl overflow-hidden">
+<div class="flex items-center gap-2 mb-4 border-b border-outline-variant/30 pb-4">
+<div class="w-3 h-3 rounded-full bg-rose-500"></div>
+<div class="w-3 h-3 rounded-full bg-amber-500"></div>
+<div class="w-3 h-3 rounded-full bg-emerald-500"></div>
+<span class="ml-4 text-outline text-xs">agent_terminal.log</span>
+</div>
+<pre class="text-outline-variant"><code class="language-json"><span class="text-primary">{</span>
+  <span class="text-secondary">"intent"</span><span class="text-on-surface">:</span> <span class="text-tertiary">"transfer_funds"</span><span class="text-on-surface">,</span>
+  <span class="text-secondary">"amount"</span><span class="text-on-surface">:</span> <span class="text-primary">500.00</span><span class="text-on-surface">,</span>
+  <span class="text-secondary">"target_agent_id"</span><span class="text-on-surface">:</span> <span class="text-tertiary">"kt_982...a1"</span><span class="text-on-surface">,</span>
+  <span class="text-secondary">"vigil_status"</span><span class="text-on-surface">:</span> <span class="text-primary">{</span>
+    <span class="text-secondary">"policy_check"</span><span class="text-on-surface">:</span> <span class="text-emerald-400">"PASS"</span><span class="text-on-surface">,</span>
+    <span class="text-secondary">"risk_score"</span><span class="text-on-surface">:</span> <span class="text-primary">12</span><span class="text-on-surface">,</span>
+    <span class="text-secondary">"action"</span><span class="text-on-surface">:</span> <span class="text-emerald-400">"PROCEED"</span>
+  <span class="text-primary">}</span>
+<span class="text-primary">}</span></code></pre>
+<div class="mt-4 pt-4 border-t border-outline-variant/20 flex items-center gap-2 text-emerald-400 font-bold">
+<span class="material-symbols-outlined text-[16px]">check_circle</span>
+<span>Execution Authorized</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full bg-surface border-t border-outline-variant/30 relative z-10 backdrop-blur-md">
+<div class="w-full py-md px-gutter flex flex-col md:flex-row justify-between items-center gap-md max-w-7xl mx-auto">
+<!-- Copyright -->
+<div class="text-outline font-code-snippet text-code-snippet flex items-center gap-xs">
+<span class="material-symbols-outlined text-[14px]">shield</span>
+    © 2024 Vigil AI. Secure Machine Payments.
+</div>
+<!-- Links -->
+<nav class="flex gap-lg font-status-label text-status-label uppercase tracking-wider">
+<a class="text-on-surface-variant hover:text-primary transition-colors" href="#">Terms</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors" href="#">Privacy</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors flex items-center gap-xs" href="#">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Status
+</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors" href="#">Twitter</a>
+</nav>
+</div>
+</footer>
+</body></html>
