@@ -36,12 +36,13 @@ async function recordOutcome(data) {
 // ── SAFE PATH: DeFi Yield Research ─────────────────────────────────────────
 async function safePath() {
   console.log('\n' + '='.repeat(60));
-  console.log('SAFE PATH: DeFi Yield Research Agent');
+  console.log('SAFE PATH: Weather API Agent');
   console.log('='.repeat(60) + '\n');
 
   // Use known services fallback (ksearch not live on testnet)
   const services = require('../data/known-services-fallback.json')
-    .filter(s => s.category === 'defi' || s.category === 'yield' || s.category === 'weather')
+    // .filter(s => s.category === 'defi' || s.category === 'yield' || s.category === 'weather')
+    .filter(s => s.category === 'weather')
     .slice(0, 2);
 
   for (const service of services) {

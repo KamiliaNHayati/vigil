@@ -43,7 +43,7 @@ async function kpassExecute(url, opts = {}) {
 
     // FALLBACK TO MOCK
     if (url.includes('weather')) return { ...CANNED_RESPONSES.weather, source: 'mock' };
-    if (url.includes('yield')) return { ...CANNED_RESPONSES.yield, source: 'mock' };
+    // if (url.includes('yield')) return { ...CANNED_RESPONSES.yield, source: 'mock' };
     return { data: { message: 'Mock response for ' + url }, source: 'mock' };
   }
 }
