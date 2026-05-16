@@ -80,7 +80,6 @@ export default function HomePage() {
             <motion.div className="flex flex-col items-start" initial="hidden" animate="show" variants={stagger}>
               <motion.div variants={fadeUp} className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-secondary/30 bg-secondary/10 text-secondary text-xs font-bold tracking-widest uppercase mb-6">
                 <span className="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse" />
-                Live on Kite Testnet · 16 Active Rules
               </motion.div>
               <motion.h1 variants={fadeUp} className="text-[56px] md:text-[76px] font-bold text-on-surface leading-[1.05] tracking-tighter mb-6">
                 The Trust Layer for{" "}
