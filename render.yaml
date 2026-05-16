@@ -1,0 +1,34 @@
+services:
+  - type: web
+    name: vigil-backend
+    env: node
+    region: singapore
+    plan: free
+    buildCommand: npm install
+    startCommand: cross-env MCP_TRANSPORT=rest node backend/src/mcp-server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MCP_TRANSPORT
+        value: rest
+      - key: PORT
+        value: 3001
+      # ── Kite Network ──────────────────────────────────────────────
+      - key: KITE_RPC_URL
+        value: https://rpc-testnet.gokite.ai
+      - key: KITE_CHAIN_ID
+        value: "2368"
+      - key: AGENT_REGISTRY_ADDRESS
+        value: 0xB41227F66f7963A902af16Ec41eC803198B09068
+      - key: SETTLEMENT_TOKEN
+        value: 0x0fF5393387ad2f9f691FD6Fd28e07E3969e27e63
+      # ── Supabase (set these in Render dashboard, not here) ────────
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      # ── LLM ───────────────────────────────────────────────────────
+      - key: OPENROUTER_KEY
+        sync: false
+      - key: LLM_TIMEOUT
+        value: "10000"

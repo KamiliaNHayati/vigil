@@ -394,10 +394,30 @@ if (transport === 'rest') {
     }
   });
 
-  // Dashboard feed (fallback for when no wallet connected, maybe limit fields or just keep as is)
-  app.get('/api/evaluations', (req, res) => {
+  // Dashboard feed — reads from Supabase when configured (Render/production),
+  // falls back to local SQLite for localhost development.
+  app.get('/api/evaluations', async (req, res) => {
     try {
       const limit = parseInt(req.query.limit) || 50;
+
+      // Use Supabase if configured (production / Render)
+      if (process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) {
+        const { getClient } = require('./store-supabase');
+        const client = getClient();
+        if (client) {
+          const { data, error } = await client
+            .from('evaluations')
+            .select('*')
+            .order('timestamp', { ascending: false })
+            .limit(limit);
+          if (!error) {
+            return res.json({ evaluations: data || [] });
+          }
+          console.warn('[Supabase] Public feed fallback to SQLite:', error.message);
+        }
+      }
+
+      // Fallback: SQLite (localhost)
       const evaluations = getRecentEvaluations(limit);
       res.json({ evaluations });
     } catch (err) {
